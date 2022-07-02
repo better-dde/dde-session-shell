@@ -1,0 +1,44 @@
+diff -uNr a/src/widgets/fullscreenbackground.cpp b/src/widgets/fullscreenbackground.cpp
+--- a/src/widgets/fullscreenbackground.cpp	2022-06-27 10:42:02.000000000 +0800
++++ b/src/widgets/fullscreenbackground.cpp	2022-07-02 12:41:42.625830003 +0800
+@@ -56,7 +56,7 @@
+ FullscreenBackground::FullscreenBackground(SessionBaseModel *model, QWidget *parent)
+     : QWidget(parent)
+     , m_fadeOutAni(nullptr)
+-    , m_imageEffectInter(new ImageEffectInter("com.deepin.daemon.ImageEffect", "/com/deepin/daemon/ImageEffect", QDBusConnection::systemBus(), this))
++    , m_imageblur(new ImageEffeblur("com.deepin.daemon.ImageEffect", "/com/deepin/daemon/ImageBlur", QDBusConnection::systemBus(), this))
+     , m_model(model)
+     , m_useSolidBackground(false)
+     , m_fadeOutAniFinished(false)
+@@ -133,7 +133,7 @@
+ 
+ void FullscreenBackground::updateBlurBackground(const QString &path)
+ {
+-    QDBusPendingCall async = m_imageEffectInter->Get("", path);
++    QDBusPendingCall async = m_imageblur->Get(path);
+     QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(async, this);
+     connect(watcher, &QDBusPendingCallWatcher::finished, this, [this] (QDBusPendingCallWatcher *call) {
+         const QDBusPendingReply<QString> reply = *call;
+diff -uNr a/src/widgets/fullscreenbackground.h b/src/widgets/fullscreenbackground.h
+--- a/src/widgets/fullscreenbackground.h	2022-06-27 10:42:02.000000000 +0800
++++ b/src/widgets/fullscreenbackground.h	2022-07-02 12:40:30.973295980 +0800
+@@ -32,9 +32,9 @@
+ Q_DECLARE_LOGGING_CATEGORY(DDE_SS)
+ 
+-#include <com_deepin_daemon_imageeffect.h>
++#include <com_deepin_daemon_imageblur.h>
+ 
+-using ImageEffectInter = com::deepin::daemon::ImageEffect;
++using ImageEffeblur = com::deepin::daemon::ImageBlur;
+ 
+ class BlackWidget;
+ class SessionBaseModel;
+@@ -95,7 +96,7 @@
+     static QList<FullscreenBackground *> frameList;
+ 
+     QVariantAnimation *m_fadeOutAni;      // 背景动画
+-    ImageEffectInter *m_imageEffectInter; // 获取模糊背景服务
++    ImageEffeblur *m_imageblur;           // 获取模糊背景服务
+ 
+     QPointer<QWidget> m_content;
+     QPointer<QScreen> m_screen;
